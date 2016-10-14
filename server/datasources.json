@@ -1,0 +1,16 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "mongod": {
+    "host": "0.0.0.0",
+    "port": 27017,
+    "url": "",
+    "database": "tryacl",
+    "password": "",
+    "name": "mongod",
+    "user": "",
+    "connector": "mongodb"
+  }
+}
