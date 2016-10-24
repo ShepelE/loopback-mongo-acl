@@ -1,0 +1,180 @@
+slc loopback
+	? What's the name of your application? try-acl
+	? Enter name of the directory to contain the project: try-acl
+	? Which version of LoopBack would you like to use? 2.x (stable)
+	? What kind of application do you have in mind? api-server (A LoopBack API server with local User auth)
+
+cd try-acl
+
+slc loopback:datasource
+	? Enter the data-source name: mongod
+	? Select the connector for mongod: MongoDB (supported by StrongLoop)
+	Connector-specific configuration:
+	? Connection String url to override other settings (eg: mongodb://username:passw
+	ord@hostname:port/database):
+	? host: 0.0.0.0
+	? port: 27017
+	? user:
+	? password:
+	? database: try-acl
+	? Install loopback-connector-mongodb@^1.4 Yes
+
+slc loopback:model
+	? Enter the model name: user
+	? Select the data-source to attach user to: mongod (mongodb)
+	? Select model's base class User
+	? Expose user via the REST API? Yes
+	? Custom plural form (used to build REST URL):
+	? Common model or server only? common
+	Let's add some user properties now.
+
+	Enter an empty property name when done.
+	? Property name: username
+	   invoke   loopback:property
+	? Property type: string
+	? Required? No
+	? Default value[leave blank for none]:
+
+	Let's add another user property.
+	Enter an empty property name when done.
+	? Property name:
+
+slc loopback:model
+	? Enter the model name: team
+	? Select the data-source to attach team to: mongod (mongodb)
+	? Select model's base class PersistedModel
+	? Expose team via the REST API? Yes
+	? Custom plural form (used to build REST URL):
+	? Common model or server only? common
+	Let's add some team properties now.
+
+	Enter an empty property name when done.
+	? Property name: ownerId
+	   invoke   loopback:property
+	? Property type: string
+	? Required? Yes
+	? Default value[leave blank for none]:
+
+	Let's add another team property.
+	Enter an empty property name when done.
+	? Property name: memberId
+	   invoke   loopback:property
+	? Property type: string
+	? Required? Yes
+	? Default value[leave blank for none]:
+
+	Let's add another team property.
+	Enter an empty property name when done.
+	? Property name:
+
+slc loopback:model project
+	? Enter the model name: project
+	? Select the data-source to attach project to: mongod (mongodb)
+	? Select model's base class PersistedModel
+	? Expose project via the REST API? Yes
+	? Custom plural form (used to build REST URL):
+	? Common model or server only? common
+	Let's add some project properties now.
+
+	Enter an empty property name when done.
+	? Property name: name
+	   invoke   loopback:property
+	? Property type: string
+	? Required? No
+	? Default value[leave blank for none]:
+
+	Let's add another project property.
+	Enter an empty property name when done.
+	? Property name: balance
+	   invoke   loopback:property
+	? Property type: string
+	? Required? No
+	? Default value[leave blank for none]:
+
+	Let's add another project property.
+	Enter an empty property name when done.
+	? Property name:
+
+slc loopback:relation
+	? Select the model to create the relationship from: user
+	? Relation type: has many
+	? Choose a model to create a relationship with: team
+	? Enter the property name for the relation: teams
+	? Optionally enter a custom foreign key: ownerId
+	? Require a through model? No
+
+slc loopback:relation
+	? Select the model to create the relationship from: user
+	? Relation type: has many
+	? Choose a model to create a relationship with: project
+	? Enter the property name for the relation: projects
+	? Optionally enter a custom foreign key: ownerId
+	? Require a through model? No
+
+slc loopback:relation
+	? Select the model to create the relationship from: team
+	? Relation type: has many
+	? Choose a model to create a relationship with: user
+	? Enter the property name for the relation: members
+	? Optionally enter a custom foreign key: memberId
+	? Require a through model? No
+
+slc loopback:relation
+	? Select the model to create the relationship from: project
+	? Relation type: belongs to
+	? Choose a model to create a relationship with: user
+	? Enter the property name for the relation: user
+	? Optionally enter a custom foreign key: ownerId
+
+add remote mothods to common/models/project.js
+mkdir server/views
+add server/views/index.ejs view
+add server/views/projects.ejs view
+configure server/server.js to show views
+add server/boot/routes.js
+add server/boot/role-resolver.js - if you open a project, check if you are a member of team that has the same owner that project has
+
+slc loopback:acl
+  ? Select the model to apply the ACL entry to: (all existing models)
+  ? Select the ACL scope: All methods and properties
+  ? Select the access type: All (match all types)
+  ? Select the role All users
+  ? Select the permission to apply Explicitly deny access
+slc loopback:acl
+  ? Select the model to apply the ACL entry to: project
+  ? Select the ACL scope: A single method
+  ? Enter the method name listProjects
+  ? Select the role All users
+  ? Select the permission to apply Explicitly grant access
+slc loopback:acl
+  ? Select the model to apply the ACL entry to: project
+  ? Select the ACL scope: A single method
+  ? Enter the method name find
+  ? Select the role other
+  ? Enter the role name: admin
+  ? Select the permission to apply Explicitly grant access
+slc loopback:acl
+  ? Select the model to apply the ACL entry to: project
+  ? Select the ACL scope: A single method
+  ? Enter the method name findById
+  ? Select the role other
+  ? Enter the role name: teamMember
+  ? Select the permission to apply Explicitly grant access
+slc loopback:acl
+  ? Select the model to apply the ACL entry to: project
+  ? Select the ACL scope: A single method
+  ? Enter the method name donate
+  ? Select the role Any authenticated user
+  ? Select the permission to apply Explicitly grant access
+slc loopback:acl
+  ? Select the model to apply the ACL entry to: project
+  ? Select the ACL scope: A single method
+  ? Enter the method name withdraw
+  ? Select the role The user owning the object
+  ? Select the permission to apply Explicitly grant access
+
+PORT=4800 slc arc
+node .
+
+http://0.0.0.0:3000/explorer
+http://0.0.0.0:3000/projacts
